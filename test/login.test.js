@@ -5,14 +5,15 @@ const postLogin = require('../fixtures/postLogin.json')
 
 
 describe('Login', () => {
+    const bodyLogin = { ...postLogin}
+
     describe('POST /login', () => {
         it('Deve retornar 200 com token em string quando usar credenciais válidas', async () => {
-            const bodyLogin = { ...postLogin}
-
             const resposta = await request(process.env.BASE_URL)
                 .post('/login')
                 .set('Content-Type', 'application/json')
                 .send(bodyLogin)
+                
 
             // console.log(resposta.status)
             // console.log(resposta.body)
@@ -49,7 +50,6 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Usuário e senha são obrigatórios.');
         })
         it('Deve retornar 401 quando for passado credenciais inválidas', async () => {
-            const bodyLogin = { ...postLogin}
             bodyLogin.username = 'credenciais.inválidas'
 
             const resposta = await request(process.env.BASE_URL)
@@ -64,9 +64,8 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Usuário ou senha inválidos.');
         })
     })
-    describe('OTHER VERBS /login', () => {
+    describe('OTHER METHODS /login', () => {
         it('Deve retornar 405 quando tentar utilizar verbo GET em /login', async () => {
-            const bodyLogin = { ...postLogin}
             const resposta = await request(process.env.BASE_URL)
                 .get('/login')
                 .set('Content-Type', 'application/json')
@@ -79,7 +78,6 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Método não permitido.');
         })
         it('Deve retornar 405 quando tentar utilizar verbo PUT em /login', async () => {
-            const bodyLogin = { ...postLogin}
             const resposta = await request(process.env.BASE_URL)
                 .put('/login')
                 .set('Content-Type', 'application/json')
@@ -92,7 +90,6 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Método não permitido.');
         })
         it('Deve retornar 405 quando tentar utilizar verbo PATCH em /login', async () => {
-            const bodyLogin = { ...postLogin}
             const resposta = await request(process.env.BASE_URL)
                 .patch('/login')
                 .set('Content-Type', 'application/json')
@@ -105,7 +102,6 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Método não permitido.');
         })
         it('Deve retornar 405 quando tentar utilizar verbo DELETE em /login', async () => {
-            const bodyLogin = { ...postLogin}
             const resposta = await request(process.env.BASE_URL)
                 .delete('/login')
                 .set('Content-Type', 'application/json')
@@ -118,7 +114,6 @@ describe('Login', () => {
             expect(resposta.body.error).to.equal('Método não permitido.');
         })
         it('Deve retornar 405 quando tentar utilizar verbo OPTIONS em /login', async () => {
-            const bodyLogin = { ...postLogin}
             const resposta = await request(process.env.BASE_URL)
                 .options('/login')
                 .set('Content-Type', 'application/json')
