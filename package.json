@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
   "scripts": {
     "test": "mocha ./test/**/*.test.js --timeout=200000 --reporter mochawesome"
   },

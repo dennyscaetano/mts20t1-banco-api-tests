@@ -1,9 +1,21 @@
 const request = require('supertest')
 const postLogin = require('../fixtures/postLogin.json')
+const postLoginJunior = require('../fixtures/postLoginJunior.json')
 
 
 const obterToken = async (usuario, senha) => {
-    const bodyLogin = { ...postLogin}
+    const bodyLogin = { ...postLogin }
+
+    const respostaLogin = await request(process.env.BASE_URL)
+        .post('/login')
+        .set('Content-Type', 'application/json')
+        .send(bodyLogin)
+
+    return respostaLogin.body.token
+}
+
+const obterTokenJunior = async (usuario, senha) => {
+    const bodyLogin = { ...postLoginJunior }
 
     const respostaLogin = await request(process.env.BASE_URL)
         .post('/login')
@@ -14,5 +26,6 @@ const obterToken = async (usuario, senha) => {
 }
 
 module.exports = {
-    obterToken
+    obterToken,
+    obterTokenJunior
 }
