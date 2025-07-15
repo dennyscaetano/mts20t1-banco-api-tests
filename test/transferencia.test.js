@@ -4,17 +4,18 @@ require('dotenv').config()
 const { obterToken } = require('../helpers/autenticacao')
 const { obterTokenJunior } = require('../helpers/autenticacao')
 const postTransferencias = require('../fixtures/postTransferencias.json')
-const postLogin = require('../fixtures/postLogin.json')
-const postLoginJunior = require('../fixtures/postLoginJunior.json')
+// const postLogin = require('../fixtures/postLogin.json')
+// const postLoginJunior = require('../fixtures/postLoginJunior.json')
 
 describe('Transferências', () => {
     const bodyTransferencias = { ...postTransferencias }
-    const bodyLogin = { ...postLogin }
 
     describe('POST /transferencias Sucess', () => {
+        beforeEach(async () => {
+            token = await obterToken('julio.lima', '123456')
+        })
         it('Deve retornar sucesso com 201 quando o valor da transferência for igual ou acima de R$10,00', async () => {
-            const token = await obterToken('julio.lima', '123456')
-
+            // const token = await obterToken('julio.lima', '123456')
             const resposta = await request(process.env.BASE_URL)
                 .post('/transferencias')
                 .set('Content-Type', 'application/json')
@@ -25,7 +26,7 @@ describe('Transferências', () => {
         })
 
         it('Deve retornar sucesso com 201 quando o valor da transferência for igual ou acima de R$5000,00 e o token for válido', async () => {
-            const token = await obterToken('julio.lima', '123456')
+            // const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.valor = 5000
             bodyTransferencias.token = "123456"
 
@@ -40,19 +41,23 @@ describe('Transferências', () => {
     })
 
     describe('POST /transferencias Failure', () => {
+        let token
+        
         it('Deve retornar falha com 403 quando a autenticação não for do usuário julio.lima', async () => {
-            const tokenJunior = await obterTokenJunior('junior.lima', '123456')
+            const token = await obterTokenJunior('junior.lima', '123456')
+            // const tokenJunior = await obterTokenJunior('junior.lima', '123456')
             bodyTransferencias.token = "123456"
 
             const resposta = await request('http://localhost:3000')
                 .post('/transferencias')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', `Bearer ${tokenJunior}`)
+                .set('Authorization', `Bearer ${token}`)
+                // .set('Authorization', `Bearer ${tokenJunior}`)
                 .send(bodyTransferencias)
 
-            // console.log(tokenJunior)
-            // console.log(resposta.status)
-            // console.log(resposta.body)
+            console.log(token)
+            console.log(resposta.status)
+            console.log(resposta.body)
 
             expect(resposta.status).to.equal(403)
             expect(resposta.body.error).to.equal('Acesso não permitido.')
