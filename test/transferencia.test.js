@@ -1,21 +1,20 @@
 const request = require('supertest')
 const { expect } = require('chai')
 require('dotenv').config()
-const { obterToken } = require('../helpers/autenticacao')
-const { obterTokenJunior } = require('../helpers/autenticacao')
+const { obterToken, obterTokenJunior } = require('../helpers/autenticacao')
 const postTransferencias = require('../fixtures/postTransferencias.json')
-// const postLogin = require('../fixtures/postLogin.json')
-// const postLoginJunior = require('../fixtures/postLoginJunior.json')
 
 describe('Transferências', () => {
     const bodyTransferencias = { ...postTransferencias }
+    let token
+
+    beforeEach(async () => {
+        token = await obterToken('julio.lima', '123456')
+    })
 
     describe('POST /transferencias Sucess', () => {
-        beforeEach(async () => {
-            token = await obterToken('julio.lima', '123456')
-        })
+
         it('Deve retornar sucesso com 201 quando o valor da transferência for igual ou acima de R$10,00', async () => {
-            // const token = await obterToken('julio.lima', '123456')
             const resposta = await request(process.env.BASE_URL)
                 .post('/transferencias')
                 .set('Content-Type', 'application/json')
@@ -26,7 +25,6 @@ describe('Transferências', () => {
         })
 
         it('Deve retornar sucesso com 201 quando o valor da transferência for igual ou acima de R$5000,00 e o token for válido', async () => {
-            // const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.valor = 5000
             bodyTransferencias.token = "123456"
 
@@ -41,30 +39,21 @@ describe('Transferências', () => {
     })
 
     describe('POST /transferencias Failure', () => {
-        let token
-        
         it('Deve retornar falha com 403 quando a autenticação não for do usuário julio.lima', async () => {
             const token = await obterTokenJunior('junior.lima', '123456')
-            // const tokenJunior = await obterTokenJunior('junior.lima', '123456')
             bodyTransferencias.token = "123456"
 
             const resposta = await request('http://localhost:3000')
                 .post('/transferencias')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
-                // .set('Authorization', `Bearer ${tokenJunior}`)
                 .send(bodyTransferencias)
-
-            console.log(token)
-            console.log(resposta.status)
-            console.log(resposta.body)
 
             expect(resposta.status).to.equal(403)
             expect(resposta.body.error).to.equal('Acesso não permitido.')
         })
 
         it('Deve retornar falha com 422 quando o valor da transferência for abaixo de R$ 10,00', async () => {
-            const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.valor = 7
             bodyTransferencias.token = "123456"
 
@@ -79,7 +68,6 @@ describe('Transferências', () => {
         })
 
         it('Deve retornar falha com 401 quando não for passado token e o valor da transferência for maior ou igual a R$5000', async () => {
-            const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.valor = 5000
             bodyTransferencias.token = ""
 
@@ -91,13 +79,12 @@ describe('Transferências', () => {
 
             expect(resposta.status).to.equal(401)
             expect(resposta.body.error).to.equal('Autenticação necessária para transferências acima de R$5.000,00.')
-            //expect(resposta.body.error).to.equal('Autenticação necessária para transferências com valores maior ou igual a R$5.000,00.')
+            //expect(resposta.body.error).to.equal('Autenticação necessária para transferências com valores maior ou igual a R$5.000,00.') - Reportar necessidade de alteração da mensagem de alerta
         })
 
         it('Deve retornar falha com 401 quando for passado token inválido e o valor da transferência for maior ou igual a R$5000', async () => {
-            const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.valor = 5000
-            bodyTransferencias.token = "654321"
+            bodyTransferencias.token = "tokenInvalido"
 
             const resposta = await request('http://localhost:3000')
                 .post('/transferencias')
@@ -111,7 +98,6 @@ describe('Transferências', () => {
         })
 
         it('Deve retornar falha com 400 quando for passado parâmetros inválidos', async () => {
-            const token = await obterToken('julio.lima', '123456')
             bodyTransferencias.contaOrigem = "parametroInvalido"
             bodyTransferencias.contaDestino = "parametroInvalido"
             bodyTransferencias.valor = "parametroInvalido"
@@ -124,15 +110,14 @@ describe('Transferências', () => {
                 .send(bodyTransferencias)
 
             expect(resposta.status).to.equal(404)
-            // expect(resposta.status).to.equal(400)
+            // expect(resposta.status).to.equal(400) - Reportar falha!
             expect(resposta.body.error).to.equal('Conta de origem ou destino não encontrada.')
-            // expect(resposta.body.error).to.equal('Parâmetros de transferência inválidos.')
+            // expect(resposta.body.error).to.equal('Parâmetros de transferência inválidos.') - Reportar necessidade de alteração da mensagem de alerta
         })
     })
 
     describe('GET /transferencias/{id} Sucess', () => {
         it('Deve retornar sucesso com 200 e dados iguais ao registro de transferência contido no banco de dados quando o ID for válido', async () => {
-            const token = await obterToken('julio.lima', '123456')
             const resposta = await request(process.env.BASE_URL)
                 .get('/transferencias/63')
                 .set('Authorization', `Bearer ${token}`)
@@ -143,13 +128,12 @@ describe('Transferências', () => {
             expect(resposta.body.conta_origem_id).to.equal(1)
             expect(resposta.body.conta_destino_id).to.equal(2)
             expect(resposta.body.valor).to.equal('33.00')
-            // expect(resposta.body.valor).to.equal(33.00)
+            // expect(resposta.body.valor).to.equal(33.00) - Reportar falha!
         })
     })
 
     describe('GET /transferencias Sucess', () => {
         it('Deve retornar 10 elementos na paginacao quando informar limite de 10 registros', async () => {
-            const token = await obterToken('julio.lima', '123456')
             const resposta = await request(process.env.BASE_URL)
                 .get('/transferencias?page=1&limit=10')
                 .set('Authorization', `Bearer ${token}`)

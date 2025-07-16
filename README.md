@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Este projeto realiza testes automatizados na API REST do [banco-api](https://github.com/juliodelimas/banco-api), validando suas funcionalidades e contribuindo a qualidade de suas operações.
+Este projeto realiza testes automatizados na API REST do [banco-api](https://github.com/dennyscaetano/mts20t1-banco-api), validando suas funcionalidades e contribuindo com a qualidade de suas operações.
 
 ## Stack utilizada
 
